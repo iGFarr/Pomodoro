@@ -105,6 +105,7 @@ function Pomodoro() {
    * Called whenever the play/pause button is clicked.
    */
   const initialFocusDuration = focusDuration * 60;
+  const initialBreakDuration = breakDuration * 60;
   function playPause() {
     setIsTimerRunning((prevState) => {
       const nextState = !prevState;
@@ -254,8 +255,8 @@ function Pomodoro() {
                 role="progressbar"
                 aria-valuemin="0"
                 aria-valuemax="100"
-                aria-valuenow={Math.floor(session?.timeRemaining/initialFocusDuration)} // TODO: Increase aria-valuenow as elapsed time increases
-                style={{ width: `${Math.floor(session?.timeRemaining/initialFocusDuration)}%` }} // TODO: Increase width % as elapsed time increases
+                aria-valuenow={session?.label === "Focusing" ? (session?.timeRemaining/initialFocusDuration*100) : (session?.timeRemaining/initialBreakDuration*100)} // TODO: Increase aria-valuenow as elapsed time increases
+                style={{ width: `${session?.label === "Focusing" ? 100 - (session?.timeRemaining/initialFocusDuration*100) : 100 - (session?.timeRemaining/initialBreakDuration*100)}%`}} // TODO: Increase width % as elapsed time increases
               />
             </div>
           </div>
