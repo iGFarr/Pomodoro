@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import classNames from "../utils/class-names";
 import useInterval from "../utils/useInterval";
 import { secondsToDuration, minutesToDuration } from "../utils/duration";
+import ProgressBar from "./ProgressBar.js"
+import ChangeInterval from "./ChangeInterval.js"
 
 // These functions are defined outside of the component to insure they do not have access to state
 // and are, therefore more likely to be pure.
@@ -61,24 +63,6 @@ function Pomodoro() {
   const breakDurationInMinutes = minutesToDuration(breakDuration);
   const [disable, setDisable] = useState(true);
   const [timeElapsed, setTimeElapsed] = useState(0);
-  const focusIncrease = () => {
-    if(focusDuration < 60){
-    setFocusDuration((currTime) => currTime + 5);}
-  }
-  const focusDecrease = () => {
-    if(focusDuration > 5){
-    setFocusDuration((currTime) => currTime - 5)};
-  }
-  const breakIncrease = () => {
-    if(breakDuration < 15){
-      setBreakDuration((currTime) => currTime + 1)
-    }
-  }
-  const breakDecrease = () => {
-    if(breakDuration > 1){
-      setBreakDuration((currTime) => currTime - 1)
-    }
-  }
   
   const stopHandler = () => {
     setSession(null);
@@ -131,70 +115,15 @@ function Pomodoro() {
 
   return (
     <div className="pomodoro">
-      <div className="row">
-        <div className="col">
-          <div className="input-group input-group-lg mb-2">
-            <span className="input-group-text" data-testid="duration-focus">
-              {/* TODO: Update this text to display the current focus session duration */}
-              Focus Duration: {focusDurationInMinutes}
-            </span>
-            <div className="input-group-append">
-              {/* TODO: Implement decreasing focus duration and disable during a focus or break session */}
-              <button
-                type="button"
-                disabled={!disable}
-                onClick={focusDecrease}
-                className="btn btn-secondary"
-                data-testid="decrease-focus"
-              >
-                <span className="oi oi-minus" />
-              </button>
-              {/* TODO: Implement increasing focus duration  and disable during a focus or break session */}
-              <button
-                type="button"
-                disabled={!disable}
-                onClick={focusIncrease}
-                className="btn btn-secondary"
-                data-testid="increase-focus"
-              >
-                <span className="oi oi-plus" />
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="col">
-          <div className="float-right">
-            <div className="input-group input-group-lg mb-2">
-              <span className="input-group-text" data-testid="duration-break">
-                {/* TODO: Update this text to display the current break session duration */}
-                Break Duration: {breakDurationInMinutes}
-              </span>
-              <div className="input-group-append">
-                {/* TODO: Implement decreasing break duration and disable during a focus or break session*/}
-                <button
-                  type="button"
-                  disabled={!disable}
-                  onClick={breakDecrease}
-                  className="btn btn-secondary"
-                  data-testid="decrease-break"
-                >
-                  <span className="oi oi-minus" />
-                </button>
-                {/* TODO: Implement increasing break duration and disable during a focus or break session*/}
-                <button
-                  type="button"
-                  disabled={!disable}
-                  onClick={breakIncrease}
-                  className="btn btn-secondary"
-                  data-testid="increase-break"
-                >
-                  <span className="oi oi-plus" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ChangeInterval 
+        focusDuration={focusDuration}
+        setFocusDuration={setFocusDuration}
+        breakDuration={breakDuration}
+        setBreakDuration={setBreakDuration}
+        focusDurationInMinutes={focusDurationInMinutes}
+        breakDurationInMinutes={breakDurationInMinutes}
+        disable={disable}
+        />
       <div className="row">
         <div className="col">
           <div
@@ -232,37 +161,13 @@ function Pomodoro() {
           </div>
         </div>
       </div>
-      {session ? (
-      <div>
-        {/* TODO: This area should show only when there is an active focus or break - i.e. the session is running or is paused */}
-        <div className="row mb-2">
-          <div className="col">
-            {/* TODO: Update message below to include current session (Focusing or On Break) total duration */}
-            <h2 data-testid="session-title">
-              {session?.label} for {session?.label === "Focusing" ? focusDurationInMinutes : breakDurationInMinutes} minutes
-            </h2>
-            {/* TODO: Update message below correctly format the time remaining in the current session */}
-            <p className="lead" data-testid="session-sub-title">
-              {secondsToDuration(session?.timeRemaining)} remaining
-            </p>
-          </div>
-        </div>
-        <div className="row mb-2">
-          <div className="col">
-            <div className="progress" style={{ height: "20px" }}>
-              <div
-                className="progress-bar"
-                role="progressbar"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow={session?.label === "Focusing" ? (session?.timeRemaining/initialFocusDuration*100) : (session?.timeRemaining/initialBreakDuration*100)} // TODO: Increase aria-valuenow as elapsed time increases
-                style={{ width: `${session?.label === "Focusing" ? 100 - (session?.timeRemaining/initialFocusDuration*100) : 100 - (session?.timeRemaining/initialBreakDuration*100)}%`}} // TODO: Increase width % as elapsed time increases
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-      ) : <div></div>}
+      <ProgressBar 
+        session={session} 
+        focusDurationInMinutes={focusDurationInMinutes} 
+        breakDurationInMinutes={breakDurationInMinutes}
+        initialBreakDuration={initialBreakDuration}
+        initialFocusDuration={initialFocusDuration}
+      />
     </div>
   );
 }
